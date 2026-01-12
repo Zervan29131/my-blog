@@ -1,0 +1,9 @@
+server:
+  port: ":8080"
+  mode: "debug" # release or debug
+
+database:
+  driver: "mysql"
+  # 请修改为你本地的 MySQL 配置
+  # 格式: user:password@tcp(host:port)/dbname?charset=utf8mb4&parseTime=True&loc=Local
+  source: "root:Passw0rd@tcp(127.0.0.1:3306)/ginblog?charset=utf8mb4&parseTime=True&loc=Local"
