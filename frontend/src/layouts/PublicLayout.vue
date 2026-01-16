@@ -1,28 +1,29 @@
 <template>
   <div class="public-layout">
-    <header class="site-header">
-      <div class="container">
-        <h1 class="logo">My Blog</h1>
-        <nav>
-          <router-link to="/">首页</router-link>
-          <router-link to="/about">关于</router-link>
-        </nav>
-      </div>
-    </header>
+    <!-- 🟢 关键修改：使用 <Nav /> 组件替换了原来的 <header> 代码块 -->
+    <Nav />
 
-    <main class="container main-content">
-      <!-- 页面内容会渲染在这里 -->
+    <main class="main-content">
       <router-view />
     </main>
 
-    <footer class="site-footer">
-      <p>&copy; 2026 My Blog. Powered by Vue3 & Go.</p>
-    </footer>
+    <TheFooter />
+    <BackToTop />
   </div>
 </template>
 
+<script setup lang="ts">
+// 1. 引入新组件
+import Nav from '../components/Nav.vue'
+import TheFooter from '../components/TheFooter.vue'
+import BackToTop from '../components/BackToTop.vue'
+</script>
+
 <style scoped>
-.container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
-.site-header { border-bottom: 1px solid #eee; padding: 20px 0; }
-.site-footer { text-align: center; padding: 40px 0; color: #999; }
+.public-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+/* 注意：原来的 .site-header 等样式已经移到 Nav.vue 中了，这里不再需要 */
 </style>

@@ -13,51 +13,63 @@
     </div>
 
     <!-- 3. 文章主体 -->
-    <article v-else class="article-content">
-      <!-- 头部元数据 -->
-      <header class="post-header">
-        <h1 class="post-title">{{ post.title }}</h1>
-        
-        <div class="post-meta">
-          <span class="meta-item">
-            <el-icon><User /></el-icon> {{ post.author?.username || 'Admin' }}
-          </span>
-          <span class="meta-item">
-            <el-icon><Calendar /></el-icon> {{ formatDate(post.created_at) }}
-          </span>
-          <span class="meta-item">
-            <el-icon><Folder /></el-icon> {{ post.category?.name || '默认分类' }}
-          </span>
-          <span class="meta-item">
-            <el-icon><View /></el-icon> {{ post.view_count }} 阅读
-          </span>
-        </div>
+    <div v-else>
+      <article class="article-content">
+        <!-- 头部元数据 -->
+        <header class="post-header">
+          <h1 class="post-title">{{ post.title }}</h1>
+          
+          <div class="post-meta">
+            <span class="meta-item">
+              <el-icon><User /></el-icon> {{ post.author?.username || 'Admin' }}
+            </span>
+            <span class="meta-item">
+              <el-icon><Calendar /></el-icon> {{ formatDate(post.created_at) }}
+            </span>
+            <span class="meta-item">
+              <el-icon><Folder /></el-icon> {{ post.category?.name || '默认分类' }}
+            </span>
+            <span class="meta-item">
+              <el-icon><View /></el-icon> {{ post.view_count }} 阅读
+            </span>
+          </div>
 
-        <!-- 标签 -->
-        <div v-if="post.tags && post.tags.length > 0" class="post-tags">
-          <el-tag 
-            v-for="tag in post.tags" 
-            :key="tag.ID" 
-            size="small" 
-            effect="plain" 
-            round
-            class="tag-item"
-          >
-            # {{ tag.name }}
-          </el-tag>
-        </div>
-      </header>
+          <!-- 标签 -->
+          <div v-if="post.tags && post.tags.length > 0" class="post-tags">
+            <el-tag 
+              v-for="tag in post.tags" 
+              :key="tag.ID" 
+              size="small" 
+              effect="plain" 
+              round
+              class="tag-item"
+            >
+              # {{ tag.name }}
+            </el-tag>
+          </div>
+        </header>
 
-      <el-divider />
+        <el-divider />
 
-      <!-- Markdown 内容渲染区 -->
-      <!-- 注意：这里使用了 v-html，样式需要通过 deep 选择器穿透 -->
-      <div class="markdown-body" v-html="htmlContent"></div>
-    </article>
+        <!-- Markdown 内容渲染区 -->
+        <div class="markdown-body" v-html="htmlContent"></div>
+      </article>
 
-    <!-- 4. 底部导航 (示例) -->
-    <div v-if="post" class="post-footer-nav">
-       <el-button @click="$router.push('/')">← 返回列表</el-button>
+      <!-- 4. 作者卡片 -->
+      <div class="author-section">
+        <AuthorCard 
+          :name="post.author?.username" 
+          bio="热爱编程，热爱生活的全栈开发者。" 
+        />
+      </div>
+
+      <!-- 5. 评论区 -->
+      <Comment :post-id="post.ID" />
+
+      <!-- 6. 底部导航 -->
+      <div class="post-footer-nav">
+         <el-button @click="$router.push('/')">← 返回列表</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -69,8 +81,10 @@ import { getPost, type Post } from '../../api/post'
 import { User, Calendar, Folder, View } from '@element-plus/icons-vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
-// 引入一款高亮代码的 CSS 主题，你可以换成 atom-one-dark 等其他主题
 import 'highlight.js/styles/github-dark.css' 
+// 引入组件
+import AuthorCard from '../../components/AuthorCard.vue'
+import Comment from '../../components/Comment.vue'
 
 const route = useRoute()
 const post = ref<Post | null>(null)
@@ -129,11 +143,15 @@ onMounted(async () => {
 
 <style scoped>
 .post-detail-wrapper {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 20px;
+  max-width: 720px;
+  margin: -60px auto 40px;
+  padding: 50px;
   min-height: 60vh;
   background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  position: relative;
+  z-index: 10;
 }
 
 .post-header {
@@ -142,10 +160,11 @@ onMounted(async () => {
 }
 
 .post-title {
-  font-size: 2.2rem;
-  color: #333;
-  margin-bottom: 20px;
-  font-weight: 700;
+  font-size: 2.5rem;
+  color: #1a1a1a;
+  margin-bottom: 25px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 .post-meta {
@@ -155,6 +174,9 @@ onMounted(async () => {
   gap: 20px;
   color: #909399;
   font-size: 0.9rem;
+  margin-bottom: 40px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 20px;
 }
 
 .meta-item {
@@ -170,21 +192,36 @@ onMounted(async () => {
   gap: 10px;
 }
 
+.author-section {
+  margin-top: 40px;
+}
+
 .post-footer-nav {
-  margin-top: 50px;
+  margin-top: 30px;
   padding-top: 30px;
-  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .post-detail-wrapper {
+    padding: 20px;
+    margin-top: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+  .post-title {
+    font-size: 1.8rem;
+  }
 }
 
 /* =========================================
    Markdown 渲染样式定制 (模拟 GitHub 风格)
-   使用 :deep() 穿透 v-html 生成的内容
    ========================================= */
 .markdown-body {
-  color: #24292e;
-  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.8;
+  color: #333;
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif;
 }
 
 .markdown-body :deep(h1),
@@ -231,7 +268,7 @@ onMounted(async () => {
   overflow: auto;
   font-size: 85%;
   line-height: 1.45;
-  background-color: #1e1e1e; /* 与 github-dark 主题匹配的背景色 */
+  background-color: #1e1e1e;
   border-radius: 6px;
   margin-bottom: 16px;
 }
@@ -248,10 +285,9 @@ onMounted(async () => {
 .markdown-body :deep(pre code) {
   background-color: transparent;
   padding: 0;
-  color: inherit; /* 让 highlight.js 控制颜色 */
+  color: inherit;
 }
 
-/* 链接样式 */
 .markdown-body :deep(a) {
   color: #0366d6;
   text-decoration: none;

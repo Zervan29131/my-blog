@@ -21,6 +21,20 @@ type User struct {
 	Posts []Post `gorm:"foreignKey:AuthorID" json:"posts,omitempty"`
 }
 
+// Comment 评论模型
+type Comment struct {
+	gorm.Model
+	PostID   uint   `gorm:"index;not null" json:"post_id"`
+	ParentID *uint  `gorm:"index" json:"parent_id"` // 指向父评论，允许为空
+	Nickname string `gorm:"type:varchar(50);not null" json:"nickname"`
+	Email    string `gorm:"type:varchar(100)" json:"email"`
+	Website  string `gorm:"type:varchar(200)" json:"website"`
+	Content  string `gorm:"type:text;not null" json:"content"`
+
+	// 关联子评论 (用于预加载)
+	Children []*Comment `gorm:"foreignkey:ParentID" json:"children,omitempty"`
+}
+
 // Category 分类模型
 type Category struct {
 	gorm.Model

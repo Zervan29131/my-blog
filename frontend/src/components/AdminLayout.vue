@@ -3,7 +3,7 @@
     <!-- 左侧侧边栏 -->
     <aside class="sidebar">
       <div class="logo-area">
-        <!-- <img src="/vite.svg" alt="logo" class="logo-img" /> -->
+        <img src="/vite.svg" alt="logo" class="logo-img" />
         <span class="logo-text">Admin</span>
       </div>
       
@@ -19,34 +19,26 @@
           <el-icon><Odometer /></el-icon>
           <span>仪表盘</span>
         </el-menu-item>
-
-        <!-- 🟢 新增：快捷操作区 -->
-        <el-menu-item-group title="快捷操作">
-          <el-menu-item index="/admin/posts/create">
-            <el-icon><EditPen /></el-icon>
-            <span>写文章</span>
-          </el-menu-item>
-        </el-menu-item-group>
         
-        <el-menu-item-group title="内容管理">
-          <el-menu-item index="/admin/posts">
-            <el-icon><Document /></el-icon>
-            <span>文章列表</span>
-          </el-menu-item>
-          
-          <el-menu-item index="/admin/categories">
-            <el-icon><Collection /></el-icon>
-            <span>分类与标签</span>
-          </el-menu-item>
-        </el-menu-item-group>
+        <el-menu-item index="/admin/posts">
+          <el-icon><Document /></el-icon>
+          <span>文章管理</span>
+        </el-menu-item>
+        
+        <el-menu-item index="/admin/categories">
+          <el-icon><Collection /></el-icon>
+          <span>分类与标签</span>
+        </el-menu-item>
       </el-menu>
     </aside>
 
     <!-- 右侧主体 -->
     <div class="main-container">
+      <!-- 🟢 使用新的 AdminNav 组件 -->
       <AdminNav />
       
       <main class="admin-content">
+        <!-- 路由出口，添加过场动画 -->
         <router-view v-slot="{ Component }">
           <transition name="fade-transform" mode="out-in">
             <component :is="Component" />
@@ -58,7 +50,8 @@
 </template>
 
 <script setup lang="ts">
-import { Odometer, Document, Collection, EditPen } from '@element-plus/icons-vue'
+import { Odometer, Document, Collection } from '@element-plus/icons-vue'
+// 引入新组件
 import AdminNav from '../components/AdminNav.vue'
 </script>
 
@@ -102,18 +95,11 @@ import AdminNav from '../components/AdminNav.vue'
   border-right: none;
 }
 
-/* 调整分组标题样式 */
-:deep(.el-menu-item-group__title) {
-  padding: 8px 0 8px 20px;
-  font-size: 12px;
-  color: #909399;
-}
-
 .main-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden; /* 防止主滚动条双重出现 */
   background-color: #f0f2f5;
 }
 
@@ -123,6 +109,7 @@ import AdminNav from '../components/AdminNav.vue'
   overflow-y: auto;
 }
 
+/* 简单的页面切换动画 */
 .fade-transform-enter-active,
 .fade-transform-leave-active {
   transition: all 0.3s;

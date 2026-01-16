@@ -1,0 +1,42 @@
+/* 1. 引入更现代的字体栈 */
+:root {
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --primary-color: #409eff;
+  --bg-color: #f4f6f8; /* 柔和的浅灰背景 */
+  --text-main: #2c3e50;
+  --text-secondary: #606266;
+  --card-radius: 12px; /* 更圆润的圆角 */
+  --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.05); /* 更柔和的阴影 */
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-base);
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased; /* 让字体更清晰 */
+}
+
+/* 2. 优化滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cdd1d6;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #aeb4bc;
+}
+
+/* 3. 链接基础样式 */
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.3s;
+}
