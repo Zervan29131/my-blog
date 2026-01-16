@@ -8,6 +8,7 @@ import AdminLayout from '../layouts/AdminLayout.vue'
 // --- 前台页面 ---
 const PublicHome = () => import('../views/public/Home.vue')
 const PostDetail = () => import('../views/public/PostDetail.vue')
+const About = () => import('../views/public/About.vue')
 
 // --- 后台页面 ---
 const AdminLogin = () => import('../views/admin/Login.vue')
@@ -39,7 +40,7 @@ const routes = [
         path: 'about',
         name: 'About',
         // 如果没有 About.vue，可以暂时重定向到首页或写个简单的临时组件
-        component: PublicHome 
+        component: About 
       }
     ]
   },
