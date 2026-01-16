@@ -31,6 +31,14 @@ type Category struct {
 	Posts []Post `gorm:"foreignKey:CategoryID" json:"posts,omitempty"`
 }
 
+// Tag 标签模型
+type Tag struct {
+	gorm.Model
+	Name  string `gorm:"type:varchar(100);uniqueIndex;not null" json:"name"`
+	Slug  string `gorm:"type:varchar(100);uniqueIndex" json:"slug"`
+	Posts []Post `gorm:"many2many:post_tags;" json:"posts,omitempty"` // 多对多关联
+}
+
 // Post 文章模型
 type Post struct {
 	gorm.Model
@@ -55,4 +63,6 @@ type Post struct {
 	// index: 经常需要查询"某个用户的文章"
 	AuthorID uint `gorm:"index;not null" json:"author_id"`
 	Author   User `json:"-"` // 在文章详情中通常不需要嵌套返回完整的作者所有信息，视情况调整
+	// 新增: 标签关联
+	Tags []Tag `gorm:"many2many:post_tags;" json:"tags"`
 }
