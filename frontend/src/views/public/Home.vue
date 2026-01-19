@@ -5,10 +5,12 @@
       <div class="hero-content">
         <h1 class="site-title">这是存在于某处的幻想世界</h1>
         <!-- <p class="site-subtitle">Thinking inside the box</p> -->
+         <!-- 打字机导入，功能实现在下面 -->
         <div class="typing-effect">
           <span>{{ typedText }}</span><span class="cursor">|</span>
         </div>
         
+        <!--  -->
         <div class="scroll-down" @click="scrollToContent">
           <el-icon class="bounce"><ArrowDown /></el-icon>
         </div>
@@ -51,7 +53,7 @@
               :class="{ 'reverse': index % 2 !== 0 }"
               @click="goToDetail(post.ID)"
             >
-              <!-- 封面图 -->
+              <!-- 文章的封面图 -->
               <div class="post-cover">
                 <img :src="`https://picsum.photos/seed/${post.ID}/400/250`" alt="cover" loading="lazy" />
               </div>
