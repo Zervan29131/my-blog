@@ -2,12 +2,14 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+// 🟢 新增：引入 Element Plus 的暗黑模式变量
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 import App from './App.vue'
 import router from './router'
 
-// import './style.css' // 如果你有全局样式的话，通常 Vite 会自动生成这个文件
+import './style.css' // 如果你有全局样式的话，通常 Vite 会自动生成这个文件
 
 const app = createApp(App)
 

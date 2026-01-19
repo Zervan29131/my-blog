@@ -117,11 +117,11 @@
           <el-card class="info-card" shadow="hover">
             <template #header>
               <div class="card-header">
-                <span><el-icon><User /></el-icon> 个人情报</span>
+                <span><el-icon><User /></el-icon> 目前可以公开的情报：</span>
               </div>
             </template>
             <div class="info-item">
-              <p>目前可以公开的情报：</p>
+              <p>个人情报</p>
             </div>
           </el-card>
 

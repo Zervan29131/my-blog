@@ -28,6 +28,7 @@ export interface Post {
 export interface PostListParams {
   page: number
   page_size: number
+  q?: string // 🟢 新增搜索参数
 }
 
 // 1. 获取文章列表

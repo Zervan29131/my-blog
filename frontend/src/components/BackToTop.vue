@@ -39,8 +39,9 @@ onUnmounted(() => {
   bottom: 40px;
   width: 50px;
   height: 50px;
-  background-color: white;
-  color: #409eff;
+  /* 🔴 修改：默认使用内容背景色 (在深色模式下是深灰色) */
+  background-color: var(--bg-content);
+  color: var(--primary-color);
   border-radius: 50%;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
@@ -49,16 +50,18 @@ onUnmounted(() => {
   cursor: pointer;
   z-index: 999;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* 🔴 新增：边框，确保在深色模式下能看清轮廓 */
+  border: 1px solid var(--border-color);
 }
 
 .back-to-top:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 16px rgba(64, 158, 255, 0.3);
-  background-color: #409eff;
+  background-color: var(--primary-color);
   color: white;
+  border-color: var(--primary-color);
 }
 
-/* Vue Transition 动画 */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s, transform 0.3s;

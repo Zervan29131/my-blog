@@ -73,11 +73,14 @@ func GetPostDetail(c *gin.Context) {
 
 // GetPostList 获取文章列表
 func GetPostList(c *gin.Context) {
-	// 获取分页参数，默认第1页，每页10条
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
 
-	posts, total, err := services.GetPostList(page, pageSize)
+	// 🟢 获取搜索关键词 q
+	keyword := c.Query("q")
+
+	// 🟢 将 keyword 传给 Service
+	posts, total, err := services.GetPostList(page, pageSize, keyword)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取列表失败"})
 		return

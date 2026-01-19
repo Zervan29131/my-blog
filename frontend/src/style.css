@@ -1,42 +1,77 @@
-/* 1. 引入更现代的字体栈 */
 :root {
-  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* --- 浅色模式 (默认) --- */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  
+  /* 核心背景色 */
+  --bg-color: #f4f6f8;           /* 页面整体背景 */
+  --bg-content: #ffffff;         /* 卡片/内容区背景 */
+  --bg-header: rgba(255, 255, 255, 0.85); /* 导航栏背景 */
+  --bg-header-scroll: rgba(255, 255, 255, 0.95);
+  
+  /* 文本颜色 */
+  --text-main: #2c3e50;          /* 主标题 */
+  --text-regular: #606266;       /* 正文 */
+  --text-secondary: #909399;     /* 辅助文字 */
+  
+  /* 边框与阴影 */
+  --border-color: #ebeef5;
+  --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  
+  /* 品牌色 */
   --primary-color: #409eff;
-  --bg-color: #f4f6f8; /* 柔和的浅灰背景 */
-  --text-main: #2c3e50;
-  --text-secondary: #606266;
-  --card-radius: 12px; /* 更圆润的圆角 */
-  --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.05); /* 更柔和的阴影 */
 }
 
+/* --- 深色模式 (Dark Mode) --- */
+html.dark {
+  /* 核心背景色 */
+  --bg-color: #121212;           /* 纯黑偏灰背景 */
+  --bg-content: #1e1e1e;         /* 这里的颜色对应 Element Plus 的 el-bg-color-overlay */
+  --bg-header: rgba(30, 30, 30, 0.85);
+  --bg-header-scroll: rgba(30, 30, 30, 0.95);
+  
+  /* 文本颜色 */
+  --text-main: #E5EAF3;          /* Element Plus 文字主色 */
+  --text-regular: #CFD3DC;
+  --text-secondary: #A3A6AD;
+  
+  /* 边框与阴影 */
+  --border-color: #363637;
+  --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* 全局应用变量 */
 html, body {
   margin: 0;
   padding: 0;
   font-family: var(--font-family-base);
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  -webkit-font-smoothing: antialiased; /* 让字体更清晰 */
+  background-color: var(--bg-color); /* 自动切换背景 */
+  color: var(--text-main);           /* 自动切换文字颜色 */
+  transition: background-color 0.3s, color 0.3s; /* 颜色切换时的平滑过渡 */
 }
 
-/* 2. 优化滚动条样式 */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cdd1d6;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #aeb4bc;
-}
-
-/* 3. 链接基础样式 */
 a {
   text-decoration: none;
   color: inherit;
   transition: color 0.3s;
+}
+
+/* 滚动条深色适配 */
+html.dark ::-webkit-scrollbar-thumb {
+  background: #4c4d4f;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+/* 覆盖 Element Plus 卡片背景，使其跟随我们的变量 */
+.el-card {
+  --el-card-bg-color: var(--bg-content) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+
+.el-pagination {
+  --el-pagination-bg-color: transparent !important;
 }
