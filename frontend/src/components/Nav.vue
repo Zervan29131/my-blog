@@ -18,6 +18,7 @@
             @keyup.enter="handleEnter"
             popper-class="search-dropdown"
           >
+          
             <!-- 自定义下拉模板 -->
             <template #default="{ item }">
               <div class="search-item">
@@ -32,7 +33,16 @@
             </template>
           </el-autocomplete>
         </div>
-
+        <!-- 🟢 动态分类渲染 -->
+        <!-- 这里的 index 设置为路由路径，点击时 el-menu 会自动跳转 -->
+        <!-- <el-menu-item 
+          v-for="cat in categories" 
+          :key="cat.ID" 
+          :index="'/category/' + cat.ID"
+        >
+          {{ cat.name }}
+        </el-menu-item>
+         -->
       <!-- 菜单链接 -->
       <nav class="nav-links">
         <router-link to="/" active-class="active">Home</router-link>

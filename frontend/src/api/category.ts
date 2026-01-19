@@ -5,10 +5,10 @@ export interface Category {
   name: string
 }
 
-// 获取分类列表
+// 获取分类列表 (Nav 组件需要用到)
 export function getCategoryList() {
   return request({
-    url: '/categories', // 假设后端有这个接口，如果没有需参考 Tag 逻辑补充
+    url: '/categories', // 确保后端有这个接口，如果没有请使用 /tags 或者确认你的后端路由
     method: 'get'
   })
 }
