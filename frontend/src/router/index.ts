@@ -3,14 +3,21 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PublicLayout from '../layouts/PublicLayout.vue'
 import AdminLayout from '../layouts/AdminLayout.vue'
 
-// 前台页面
+// 前台页面组件导入
+// 使用懒加载 (Lazy Loading) 优化性能
 const PublicHome = () => import('../views/public/Home.vue')
 const PostDetail = () => import('../views/public/PostDetail.vue')
 const About = () => import('../views/public/About.vue')
-// 🟢 新增：分类文章列表页
 const CategoryPostList = () => import('../views/public/CategoryPostList.vue')
+const SearchResults = () => import('../views/public/SearchResults.vue')
+const TagPostList = () => import('../views/public/TagPostList.vue')
+const Archives = () => import('../views/public/Archives.vue')
+const Categories = () => import('../views/public/Categories.vue') // 🟢 新增
+const Links = () => import('../views/public/Links.vue')           // 🟢 新增
+const Donate = () => import('../views/public/Donate.vue')         // 🟢 新增
+const NotFound = () => import('../views/public/NotFound.vue')     // 🟢 新增
 
-// 后台页面
+// 后台页面组件导入
 const AdminLogin = () => import('../views/admin/Login.vue')
 const AdminDashboard = () => import('../views/admin/Dashboard.vue')
 const AdminPostList = () => import('../views/admin/PostList.vue')
@@ -18,44 +25,73 @@ const AdminPostEdit = () => import('../views/admin/PostEdit.vue')
 const AdminCategoryTag = () => import('../views/admin/CategoryTag.vue')
 
 const routes = [
-  // 前台路由
+  // 1. 前台路由 (Public)
   {
     path: '/',
     component: PublicLayout,
     children: [
-      {
-        path: '',
-        name: 'Home',
-        component: PublicHome
+      { 
+        path: '', 
+        name: 'Home', 
+        component: PublicHome 
       },
-      // 🟢 新增分类路由配置
-      // 当你访问 /category/3 时，会渲染 CategoryPostList 组件
-      {
-        path: 'category/:id',
-        name: 'CategoryPostList',
-        component: CategoryPostList
+      { 
+        path: 'search', 
+        name: 'Search', 
+        component: SearchResults 
       },
-      {
-        path: 'post/:id',
-        name: 'PostDetail',
-        component: PostDetail
+      { 
+        path: 'archives', 
+        name: 'Archives', 
+        component: Archives 
       },
-      {
-        path: 'about',
-        name: 'About',
+      { 
+        path: 'categories', 
+        name: 'Categories', 
+        component: Categories 
+      },
+      { 
+        path: 'links', 
+        name: 'Links', 
+        component: Links 
+      },
+      { 
+        path: 'donate', 
+        name: 'Donate', 
+        component: Donate 
+      },
+      // 动态路由参数
+      { 
+        path: 'category/:id', 
+        name: 'CategoryPostList', 
+        component: CategoryPostList 
+      },
+      { 
+        path: 'tag/:id', 
+        name: 'TagPostList', 
+        component: TagPostList 
+      },
+      { 
+        path: 'post/:id', 
+        name: 'PostDetail', 
+        component: PostDetail 
+      },
+      { 
+        path: 'about', 
+        name: 'About', 
         component: About 
       }
     ]
   },
 
-  // 登录页
+  // 2. 登录页
   {
     path: '/login',
     name: 'Login',
     component: AdminLogin
   },
 
-  // 后台路由
+  // 3. 后台路由 (Admin) - 需要权限验证
   {
     path: '/admin',
     component: AdminLayout,
@@ -70,20 +106,28 @@ const routes = [
     ]
   },
 
-  // 404
+  // 4. 404 错误页
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    redirect: '/'
+    component: NotFound
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  // 切换路由时自动滚动到顶部
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
 })
 
-// 简单路由守卫
+// 简单的路由守卫 (检查 Token)
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   if (to.matched.some(record => record.meta.requiresAuth)) {

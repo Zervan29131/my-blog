@@ -1,33 +1,34 @@
 <template>
-  <div class="category-container">
+  <div class="search-results-container">
     <main class="main-wrapper">
-      <!-- 头部信息 -->
-      <div class="category-header">
-        <div class="header-content">
-          <span class="sub-title">CATEGORY</span>
-          <h1 class="category-title">
-             <el-icon class="icon-folder"><FolderOpened /></el-icon>
-             {{ categoryName || '加载中...' }}
-          </h1>
-          <p class="category-desc">收录于此分类下的所有文章</p>
-        </div>
+      <!-- 搜索状态头部 -->
+      <div class="search-header">
+        <h2 class="search-title">
+          <el-icon class="icon-search"><Search /></el-icon> 
+          <span>搜索结果: <span class="highlight">"{{ searchQuery }}"</span></span>
+        </h2>
+        <p class="search-meta" v-if="!loading">
+          共找到 <span class="count">{{ total }}</span> 篇相关文章
+        </p>
       </div>
 
       <el-row :gutter="20">
         <el-col :span="24">
-          <!-- 加载状态 -->
+          <!-- 加载中 -->
           <div v-if="loading" class="loading-box">
-             <el-skeleton :rows="5" animated />
+            <el-skeleton :rows="5" animated />
           </div>
 
           <!-- 空状态 -->
           <div v-else-if="posts.length === 0" class="empty-box">
-            <el-empty description="该分类下暂无文章" />
-            <el-button @click="$router.push('/')">返回首页</el-button>
+            <el-empty :image-size="200" :description="`抱歉，没有找到与 '${searchQuery}' 相关的文章`">
+              <el-button type="primary" @click="$router.push('/')">返回首页</el-button>
+            </el-empty>
           </div>
 
           <!-- 文章列表 -->
           <div v-else class="post-list">
+            <!-- 使用 PostCard 组件 -->
             <PostCard 
               v-for="(post, index) in posts" 
               :key="post.ID" 
@@ -39,7 +40,7 @@
 
           <!-- 分页 -->
           <div class="pagination-box" v-if="total > pageSize">
-             <el-pagination
+            <el-pagination
               background
               layout="prev, pager, next"
               :total="total"
@@ -58,7 +59,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getPostList, type Post } from '../../api/post'
-import { FolderOpened } from '@element-plus/icons-vue'
+import { Search } from '@element-plus/icons-vue'
 import PostCard from '../../components/PostCard.vue'
 
 const route = useRoute()
@@ -69,41 +70,34 @@ const loading = ref(true)
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
-const categoryName = ref('')
+const searchQuery = ref('')
 
 // 获取数据
 const fetchData = async () => {
-  loading.value = true
-  const categoryId = Number(route.params.id)
+  // 从路由参数获取关键词，如果没有则为空
+  const q = route.query.q ? String(route.query.q).trim() : ''
+  searchQuery.value = q
   
-  if (!categoryId) {
+  if (!q) {
     loading.value = false
+    posts.value = []
+    total.value = 0
     return
   }
 
+  loading.value = true
   try {
-    // 1. 获取文章列表 (传递 category_id)
+    // 调用 API，传递 q 参数
     const res: any = await getPostList({
       page: currentPage.value,
       page_size: pageSize.value,
-      category_id: categoryId 
+      q: q
     })
-    
     posts.value = res.data || []
     total.value = res.total || 0
-
-    // 2. 尝试获取分类名称
-    // 方法A: 如果有独立的 getCategoryDetail API，应该调用它
-    // 方法B: 偷懒做法，直接从第一篇文章里取 category.name (前提是该分类下有文章)
-    if (posts.value.length > 0 && posts.value[0].category) {
-      categoryName.value = posts.value[0].category.name
-    } else {
-      // 兜底显示
-      categoryName.value = `分类 #${categoryId}`
-    }
-
   } catch (error) {
-    console.error('获取分类文章失败:', error)
+    console.error('搜索失败:', error)
+    posts.value = []
   } finally {
     loading.value = false
   }
@@ -119,13 +113,12 @@ const goToDetail = (id: number) => {
   router.push(`/post/${id}`)
 }
 
-// 监听 ID 变化
+// 监听路由参数变化（例如用户在搜索结果页再次搜索其他词）
 watch(
-  () => route.params.id,
+  () => route.query.q,
   (newVal) => {
-    if (newVal) {
+    if (newVal !== undefined) {
       currentPage.value = 1
-      categoryName.value = '' 
       fetchData()
     }
   }
@@ -137,76 +130,94 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 复用 TagPostList 的样式逻辑，保持风格统一 */
-.category-container {
-  padding-top: 80px;
-  min-height: 100vh;
+.search-results-container {
+  padding-top: 80px; /* 留出导航栏高度 */
+  min-height: 80vh;
   background-color: var(--bg-color);
+  transition: background-color 0.3s;
 }
 
 .main-wrapper {
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
+  animation: fadeInUp 0.5s ease-out;
 }
 
-.category-header {
+/* 搜索头部 */
+.search-header {
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
   text-align: center;
-  margin-bottom: 50px;
-  padding: 40px 0;
-  background: var(--bg-content);
-  border-radius: 12px;
-  box-shadow: var(--shadow-light);
-  border: 1px solid var(--border-color);
 }
 
-.sub-title {
-  font-size: 14px;
-  color: var(--text-secondary);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.category-title {
-  font-size: 2.5rem;
-  color: var(--text-main);
-  margin: 0 0 15px;
+.search-title {
+  font-size: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 15px;
+  color: var(--text-main);
+  margin-bottom: 10px;
 }
 
-.icon-folder {
+.icon-search {
   color: var(--primary-color);
 }
 
-.category-desc {
-  color: var(--text-regular);
+.highlight {
+  color: var(--primary-color);
+  font-style: italic;
+}
+
+.search-meta {
+  color: var(--text-secondary);
   font-size: 1rem;
 }
 
-.loading-box, .empty-box {
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.count {
+  font-weight: bold;
+  color: var(--text-main);
+  margin: 0 4px;
 }
 
+/* 加载与空状态 */
+.loading-box, .empty-box {
+  padding: 40px 0;
+  min-height: 300px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* 分页 */
 .pagination-box {
   display: flex;
   justify-content: center;
   margin-top: 40px;
+  margin-bottom: 40px;
 }
 
-@media (max-width: 768px) {
-  .category-title {
-    font-size: 1.8rem;
+/* 动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  .category-header {
-    padding: 30px 10px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .search-title {
+    font-size: 1.5rem;
+  }
+  .main-wrapper {
+    padding: 20px 10px;
   }
 }
 </style>

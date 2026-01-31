@@ -1,32 +1,29 @@
 <template>
-  <div class="category-container">
+  <div class="tag-container">
     <main class="main-wrapper">
       <!-- 头部信息 -->
-      <div class="category-header">
+      <div class="tag-header">
         <div class="header-content">
-          <span class="sub-title">CATEGORY</span>
-          <h1 class="category-title">
-             <el-icon class="icon-folder"><FolderOpened /></el-icon>
-             {{ categoryName || '加载中...' }}
+          <span class="sub-title">TAG ARCHIVE</span>
+          <h1 class="tag-title">
+             <el-icon class="icon-tag"><Collection /></el-icon>
+             {{ tagName || '加载中...' }}
           </h1>
-          <p class="category-desc">收录于此分类下的所有文章</p>
+          <p class="tag-desc">与此标签相关的文章集合</p>
         </div>
       </div>
 
       <el-row :gutter="20">
         <el-col :span="24">
-          <!-- 加载状态 -->
           <div v-if="loading" class="loading-box">
              <el-skeleton :rows="5" animated />
           </div>
 
-          <!-- 空状态 -->
           <div v-else-if="posts.length === 0" class="empty-box">
-            <el-empty description="该分类下暂无文章" />
+            <el-empty description="该标签下暂无文章" />
             <el-button @click="$router.push('/')">返回首页</el-button>
           </div>
 
-          <!-- 文章列表 -->
           <div v-else class="post-list">
             <PostCard 
               v-for="(post, index) in posts" 
@@ -37,7 +34,6 @@
             />
           </div>
 
-          <!-- 分页 -->
           <div class="pagination-box" v-if="total > pageSize">
              <el-pagination
               background
@@ -58,7 +54,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getPostList, type Post } from '../../api/post'
-import { FolderOpened } from '@element-plus/icons-vue'
+import { Collection } from '@element-plus/icons-vue'
 import PostCard from '../../components/PostCard.vue'
 
 const route = useRoute()
@@ -69,41 +65,30 @@ const loading = ref(true)
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
-const categoryName = ref('')
+const tagName = ref('') 
 
-// 获取数据
 const fetchData = async () => {
   loading.value = true
-  const categoryId = Number(route.params.id)
+  const tagId = Number(route.params.id)
   
-  if (!categoryId) {
+  if (!tagId) {
     loading.value = false
     return
   }
 
   try {
-    // 1. 获取文章列表 (传递 category_id)
     const res: any = await getPostList({
       page: currentPage.value,
       page_size: pageSize.value,
-      category_id: categoryId 
+      tag_id: tagId 
     })
     
     posts.value = res.data || []
     total.value = res.total || 0
-
-    // 2. 尝试获取分类名称
-    // 方法A: 如果有独立的 getCategoryDetail API，应该调用它
-    // 方法B: 偷懒做法，直接从第一篇文章里取 category.name (前提是该分类下有文章)
-    if (posts.value.length > 0 && posts.value[0].category) {
-      categoryName.value = posts.value[0].category.name
-    } else {
-      // 兜底显示
-      categoryName.value = `分类 #${categoryId}`
-    }
+    tagName.value = `标签 #${tagId}` 
 
   } catch (error) {
-    console.error('获取分类文章失败:', error)
+    console.error(error)
   } finally {
     loading.value = false
   }
@@ -119,29 +104,23 @@ const goToDetail = (id: number) => {
   router.push(`/post/${id}`)
 }
 
-// 监听 ID 变化
-watch(
-  () => route.params.id,
-  (newVal) => {
-    if (newVal) {
-      currentPage.value = 1
-      categoryName.value = '' 
-      fetchData()
-    }
+watch(() => route.params.id, (newVal) => {
+  if (newVal) {
+    currentPage.value = 1
+    tagName.value = '' 
+    fetchData()
   }
-)
-
-onMounted(() => {
-  fetchData()
 })
+
+onMounted(() => fetchData())
 </script>
 
 <style scoped>
-/* 复用 TagPostList 的样式逻辑，保持风格统一 */
-.category-container {
+.tag-container {
   padding-top: 80px;
   min-height: 100vh;
-  background-color: var(--bg-color);
+  background-color: var(--bg-color); /* 关键 */
+  transition: background-color 0.3s;
 }
 
 .main-wrapper {
@@ -150,14 +129,21 @@ onMounted(() => {
   padding: 20px;
 }
 
-.category-header {
+.tag-header {
   text-align: center;
   margin-bottom: 50px;
   padding: 40px 0;
-  background: var(--bg-content);
+  background: var(--bg-content); /* 关键 */
   border-radius: 12px;
   box-shadow: var(--shadow-light);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color); /* 关键 */
+  transition: all 0.3s;
+}
+
+/* 🟢 深色模式：Header 增强 */
+:global(html.dark) .tag-header {
+  background: linear-gradient(145deg, #1d1e1f, #252627);
+  border-color: #363637;
 }
 
 .sub-title {
@@ -169,9 +155,9 @@ onMounted(() => {
   margin-bottom: 10px;
 }
 
-.category-title {
+.tag-title {
   font-size: 2.5rem;
-  color: var(--text-main);
+  color: var(--text-main); /* 关键 */
   margin: 0 0 15px;
   display: flex;
   align-items: center;
@@ -179,11 +165,11 @@ onMounted(() => {
   gap: 15px;
 }
 
-.icon-folder {
+.icon-tag {
   color: var(--primary-color);
 }
 
-.category-desc {
+.tag-desc {
   color: var(--text-regular);
   font-size: 1rem;
 }
@@ -202,11 +188,7 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .category-title {
-    font-size: 1.8rem;
-  }
-  .category-header {
-    padding: 30px 10px;
-  }
+  .tag-title { font-size: 1.8rem; }
+  .tag-header { padding: 30px 10px; }
 }
 </style>
