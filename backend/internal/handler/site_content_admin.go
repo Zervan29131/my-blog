@@ -46,6 +46,10 @@ type featuredArticleRequest struct {
 	IsVisible *bool  `json:"is_visible"`
 }
 
+type featuredArticleVisibilityRequest struct {
+	IsVisible *bool `json:"is_visible"`
+}
+
 type resourceOrderRequest struct {
 	Items []resourceOrderItem `json:"items"`
 }
@@ -218,6 +222,30 @@ func (handler *SiteContentAdminHandler) CreateFeaturedArticle(context *gin.Conte
 
 func (handler *SiteContentAdminHandler) DeleteFeaturedArticle(context *gin.Context) {
 	handler.deleteResource(context, "articleId", handler.featured.Delete)
+}
+
+func (handler *SiteContentAdminHandler) UpdateFeaturedArticle(context *gin.Context) {
+	administratorID, ok := administratorID(context)
+	if !ok {
+		return
+	}
+	articleID, ok := parseSiteContentID(context, "articleId")
+	if !ok {
+		return
+	}
+	var request featuredArticleVisibilityRequest
+	if !decodeSiteContentRequest(context, &request) || request.IsVisible == nil {
+		writeSiteContentValidationError(context)
+		return
+	}
+	item, err := handler.featured.UpdateVisibility(
+		context.Request.Context(), articleID, *request.IsVisible, administratorID,
+	)
+	if err != nil {
+		handler.writeError(context, err)
+		return
+	}
+	writeSuccess(context, http.StatusOK, item)
 }
 
 func (handler *SiteContentAdminHandler) ReorderFeaturedArticles(context *gin.Context) {

@@ -9,12 +9,15 @@ import ErrorState from '../../components/ErrorState.vue'
 import LoadingState from '../../components/LoadingState.vue'
 import PaginationControls from '../../components/PaginationControls.vue'
 import type { Article, Comment } from '../../types/blog'
+import { usePublicConfigStore } from '../../stores/publicConfig'
 import { formatDate } from '../../utils/format'
 import { renderArticleMarkdown, type ArticleHeading } from '../../utils/markdown'
 
 const props = defineProps<{
   slug: string
 }>()
+
+const configStore = usePublicConfigStore()
 
 const article = ref<Article | null>(null)
 const comments = ref<Comment[]>([])
@@ -37,7 +40,7 @@ function updateDescription(content: string) {
     description.name = 'description'
     document.head.append(description)
   }
-  description.content = content || '字里行间技术博客文章'
+  description.content = content || `${configStore.site.name}博客文章`
 }
 
 function setupOutline() {
@@ -88,14 +91,12 @@ async function loadPage() {
     const rendered = renderArticleMarkdown(article.value.content)
     renderedContent.value = rendered.html
     outline.value = rendered.headings
-    document.title = `${article.value.title} | 字里行间`
     updateDescription(article.value.summary)
     await loadComments(1)
     await nextTick()
     setupOutline()
   } catch (error) {
     errorMessage.value = apiErrorMessage(error, '文章加载失败，请稍后重试。')
-    document.title = '文章加载失败 | 字里行间'
   } finally {
     loading.value = false
   }
@@ -106,6 +107,14 @@ function changeCommentPage(targetPage: number) {
 }
 
 watch(() => props.slug, () => void loadPage(), { immediate: true })
+watch(
+  [() => article.value?.title, () => errorMessage.value, () => configStore.titleName],
+  ([title, error, siteTitle]) => {
+    if (title) document.title = `${title} | ${siteTitle}`
+    else if (error) document.title = `文章加载失败 | ${siteTitle}`
+  },
+  { immediate: true },
+)
 onBeforeUnmount(() => {
   outlineObserver?.disconnect()
 })

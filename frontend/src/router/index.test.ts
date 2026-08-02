@@ -50,4 +50,30 @@ describe('administrator route guard', () => {
 
     expect(router.currentRoute.value.name).toBe('admin-site-settings')
   })
+
+  it('registers the authenticated homepage settings page', async () => {
+    localStorage.setItem(ADMIN_TOKEN_KEY, 'signed-token')
+    setActivePinia(createPinia())
+    const router = createAppRouter(createMemoryHistory())
+
+    await router.push('/admin/homepage')
+
+    expect(router.currentRoute.value.name).toBe('admin-homepage')
+  })
+
+  it('protects the homepage draft preview and preserves its target path', async () => {
+    const anonymousRouter = createAppRouter(createMemoryHistory())
+
+    await anonymousRouter.push('/preview/home')
+
+    expect(anonymousRouter.currentRoute.value.name).toBe('admin-login')
+    expect(anonymousRouter.currentRoute.value.query.redirect).toBe('/preview/home')
+
+    localStorage.setItem(ADMIN_TOKEN_KEY, 'signed-token')
+    setActivePinia(createPinia())
+    const authenticatedRouter = createAppRouter(createMemoryHistory())
+    await authenticatedRouter.push('/preview/home')
+
+    expect(authenticatedRouter.currentRoute.value.name).toBe('preview-home')
+  })
 })

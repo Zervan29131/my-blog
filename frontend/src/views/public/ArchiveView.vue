@@ -50,7 +50,6 @@ function changePage(targetPage: number) {
 }
 
 onMounted(() => {
-  document.title = '归档 | 字里行间'
   void loadArticles()
 })
 </script>

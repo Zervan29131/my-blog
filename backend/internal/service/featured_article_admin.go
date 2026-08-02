@@ -129,6 +129,40 @@ func (service *FeaturedArticleAdminService) Delete(
 	return nil
 }
 
+func (service *FeaturedArticleAdminService) UpdateVisibility(
+	ctx context.Context,
+	articleID uint64,
+	isVisible bool,
+	administratorID uint64,
+) (model.FeaturedArticle, error) {
+	var featured model.FeaturedArticle
+	result := service.database.WithContext(ctx).
+		Where("article_id = ?", articleID).
+		Limit(1).
+		Find(&featured)
+	if result.Error != nil {
+		return model.FeaturedArticle{}, fmt.Errorf("find featured article: %w", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return model.FeaturedArticle{}, ErrSiteContentNotFound
+	}
+
+	featured.IsVisible = isVisible
+	featured.UpdatedAt = time.Now().UTC()
+	update := service.database.WithContext(ctx).
+		Model(&model.FeaturedArticle{}).
+		Where("article_id = ?", articleID).
+		Updates(map[string]any{"is_visible": isVisible, "updated_at": featured.UpdatedAt})
+	if update.Error != nil {
+		return model.FeaturedArticle{}, fmt.Errorf("update featured article visibility: %w", update.Error)
+	}
+	if update.RowsAffected == 0 {
+		return model.FeaturedArticle{}, ErrSiteContentNotFound
+	}
+	logSiteContentOperation("featured_article_visibility_updated", administratorID, "article", articleID)
+	return featured, nil
+}
+
 func (service *FeaturedArticleAdminService) Reorder(
 	ctx context.Context,
 	items []ResourceOrder,

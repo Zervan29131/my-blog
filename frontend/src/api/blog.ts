@@ -6,6 +6,8 @@ import type {
   Comment,
   CommentInput,
   PaginatedData,
+  PublicHomepageConfig,
+  PublicSiteConfig,
   SubmittedComment,
 } from '../types/blog'
 
@@ -13,6 +15,16 @@ export async function fetchArticles(page = 1, pageSize = 10): Promise<PaginatedD
   const response = await http.get<ApiResponse<PaginatedData<ArticleSummary>>>('/articles', {
     params: { page, page_size: pageSize },
   })
+  return response.data.data
+}
+
+export async function fetchPublicSiteConfig(): Promise<PublicSiteConfig> {
+  const response = await http.get<ApiResponse<PublicSiteConfig>>('/site/config')
+  return response.data.data
+}
+
+export async function fetchHomepageConfig(): Promise<PublicHomepageConfig> {
+  const response = await http.get<ApiResponse<PublicHomepageConfig>>('/homepage')
   return response.data.data
 }
 

@@ -1,9 +1,3 @@
-<script setup lang="ts">
-import { onMounted } from 'vue'
-
-onMounted(() => { document.title = '页面不存在 | 字里行间' })
-</script>
-
 <template>
   <main class="not-found-page">
     <p class="not-found-code">404</p>

@@ -2,6 +2,7 @@
 import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import ThemeToggle from '../components/ThemeToggle.vue'
 import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
@@ -11,6 +12,7 @@ const activeMenu = computed(() => {
   if (route.path.startsWith('/admin/articles')) return '/admin/articles'
   if (route.path.startsWith('/admin/comments')) return '/admin/comments'
   if (route.path.startsWith('/admin/site/settings')) return '/admin/site/settings'
+  if (route.path.startsWith('/admin/homepage')) return '/admin/homepage'
   return '/admin'
 })
 
@@ -46,6 +48,7 @@ onMounted(async () => {
         <el-menu-item index="/admin/articles">文章</el-menu-item>
         <el-menu-item index="/admin/comments">评论</el-menu-item>
         <el-menu-item index="/admin/site/settings">站点设置</el-menu-item>
+        <el-menu-item index="/admin/homepage">首页配置</el-menu-item>
       </el-menu>
 
       <RouterLink class="view-blog-link" to="/" target="_blank">查看博客 ↗</RouterLink>
@@ -57,7 +60,10 @@ onMounted(async () => {
           <span class="admin-context">PERSONAL BLOG</span>
           <strong>{{ authStore.currentAdmin?.username || '管理员' }}</strong>
         </div>
-        <el-button text @click="logout">退出登录</el-button>
+        <div class="admin-topbar-actions">
+          <ThemeToggle />
+          <el-button text @click="logout">退出登录</el-button>
+        </div>
       </header>
 
       <div class="admin-content">

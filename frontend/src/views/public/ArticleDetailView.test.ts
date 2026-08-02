@@ -1,4 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ArticleDetailView from './ArticleDetailView.vue'
@@ -7,6 +8,7 @@ import { fetchArticle, fetchComments } from '../../api/blog'
 vi.mock('../../api/blog', () => ({
   fetchArticle: vi.fn(),
   fetchComments: vi.fn(),
+  fetchPublicSiteConfig: vi.fn(),
   submitComment: vi.fn(),
 }))
 
@@ -15,6 +17,7 @@ const mockedFetchComments = vi.mocked(fetchComments)
 
 describe('ArticleDetailView', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     mockedFetchArticle.mockReset()
     mockedFetchComments.mockReset()
   })
@@ -45,7 +48,9 @@ describe('ArticleDetailView', () => {
       total_pages: 1,
     })
 
-    const wrapper = mount(ArticleDetailView, { props: { slug: 'safe-post' } })
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const wrapper = mount(ArticleDetailView, { props: { slug: 'safe-post' }, global: { plugins: [pinia] } })
     await flushPromises()
 
     expect(wrapper.text()).toContain('安全渲染文章')

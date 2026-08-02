@@ -8,6 +8,18 @@
 - 管理后台：`http://localhost:8080/admin/login`
 - 健康检查：`http://localhost:8080/api/v1/health`
 
+## 首页内容管理
+
+管理员可以通过 `http://localhost:8080/admin/homepage` 管理首页的固定结构模块，包括 Hero、个人简介、推荐文章、最新文章、技术栈和社交链接。模块可以启用、停用和排序，但系统不接受任意 HTML、CSS 或 JavaScript。
+
+首页配置采用草稿与发布版本隔离的流程：
+
+1. 在后台修改模块后点击“保存草稿”，公开首页不会变化。
+2. 草稿保存后点击“预览首页”，在 `http://localhost:8080/preview/home` 查看管理员专用预览。
+3. 确认内容后点击“发布首页”，公开首页才会切换到新版本。
+
+预览页要求有效的管理员登录状态。未登录访问会跳转到登录页，Token 失效后也会清除本地登录状态并重新登录。草稿预览 API 使用 Bearer JWT 并返回 `Cache-Control: no-store`；预览页面同时使用 `noindex,nofollow` Meta 和 `X-Robots-Tag` 响应头禁止搜索引擎索引。存在未保存的本地修改时，后台会要求先保存草稿再预览，以保证预览内容含义明确。
+
 ## 技术栈
 
 - 前端：Vue 3、TypeScript、Vite、Vue Router、Pinia、Axios、Element Plus
@@ -166,11 +178,18 @@ Backend 每次启动都会检查 `administrators` 表：
 | `GET /articles/:slug` | 已发布文章详情 | 否 |
 | `GET /articles/:slug/comments` | 已审核评论列表 | 否 |
 | `POST /articles/:slug/comments` | 提交待审核评论 | 否 |
+| `GET /site/config` | 公开站点、导航与页脚配置 | 否 |
+| `GET /homepage` | 当前已发布首页配置 | 否 |
 | `POST /admin/auth/login` | 管理员登录 | 否 |
 | `GET /admin/auth/me` | 当前管理员 | Bearer JWT |
 | `GET /admin/dashboard` | 后台统计 | Bearer JWT |
 | `/admin/articles...` | 文章管理 | Bearer JWT |
 | `/admin/comments...` | 评论审核与删除 | Bearer JWT |
+| `GET /admin/homepage/draft` | 读取首页草稿 | Bearer JWT |
+| `PUT /admin/homepage/draft` | 保存首页草稿 | Bearer JWT |
+| `GET /admin/homepage/preview` | 获取组合后的草稿预览 | Bearer JWT |
+| `POST /admin/homepage/publish` | 发布首页草稿 | Bearer JWT |
+| `POST /admin/homepage/reset-draft` | 用已发布版本恢复草稿 | Bearer JWT |
 
 管理接口使用请求头：
 
@@ -202,6 +221,18 @@ npm run build
 ```bash
 docker compose config --quiet
 ```
+
+首页 CMS 的自动化回归覆盖：草稿与发布隔离、预览鉴权、禁止缓存、输入约束与危险 URL 过滤、Markdown XSS 清理、固定模块映射、加载失败降级、路由保护和 `noindex` 恢复。生产构建完成后还应在 Docker 环境检查：
+
+```bash
+docker compose up -d --build
+docker compose ps
+curl -I http://localhost:8080/preview/home
+curl http://localhost:8080/api/v1/homepage
+curl http://localhost:8080/api/v1/admin/homepage/preview
+```
+
+最后一个未携带 Token 的预览 API 请求应返回 `401 Unauthorized`，而不是草稿内容。
 
 ## Linux 服务器部署
 

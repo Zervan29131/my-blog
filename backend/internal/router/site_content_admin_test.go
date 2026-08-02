@@ -37,6 +37,7 @@ func TestSiteContentAdminRoutesRequireAuthentication(t *testing.T) {
 		{http.MethodGet, "/api/v1/admin/featured-articles"},
 		{http.MethodPost, "/api/v1/admin/featured-articles"},
 		{http.MethodPut, "/api/v1/admin/featured-articles/order"},
+		{http.MethodPut, "/api/v1/admin/featured-articles/1"},
 		{http.MethodDelete, "/api/v1/admin/featured-articles/1"},
 	}
 	for _, route := range routes {
@@ -273,6 +274,22 @@ func TestFeaturedArticleManagement(t *testing.T) {
 	), true)
 	if created.Code != http.StatusCreated || !bytes.Contains(created.Body.Bytes(), []byte(`"article_id":7`)) {
 		t.Fatalf("unexpected featured article create response: %d %s", created.Code, created.Body.String())
+	}
+
+	mock.ExpectQuery(`SELECT \* FROM "featured_articles" WHERE article_id = \$1 LIMIT \$2`).
+		WithArgs(uint64(7), 1).
+		WillReturnRows(sqlmock.NewRows([]string{
+			"id", "article_id", "sort_order", "is_visible", "created_at", "updated_at",
+		}).AddRow(uint64(1), uint64(7), 10, true, now, now))
+	mock.ExpectBegin()
+	mock.ExpectExec(`UPDATE "featured_articles" SET .* WHERE article_id = \$[0-9]+`).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit()
+	visibility := performSiteContentRequest(t, engine, http.MethodPut, "/api/v1/admin/featured-articles/7", []byte(
+		`{"is_visible":false}`,
+	), true)
+	if visibility.Code != http.StatusOK || !bytes.Contains(visibility.Body.Bytes(), []byte(`"is_visible":false`)) {
+		t.Fatalf("unexpected featured visibility response: %d %s", visibility.Code, visibility.Body.String())
 	}
 
 	mock.ExpectBegin()

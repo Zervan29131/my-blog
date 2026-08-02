@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { apiErrorMessage } from '../../api/http'
+import ThemeToggle from '../../components/ThemeToggle.vue'
 import { useAuthStore } from '../../stores/auth'
 
 const route = useRoute()
@@ -36,6 +37,7 @@ async function submit() {
 
 <template>
   <main class="admin-login-page">
+    <ThemeToggle class="admin-login-theme-toggle" />
     <section class="admin-login-panel">
       <RouterLink class="login-brand" to="/">
         <span>阅</span>

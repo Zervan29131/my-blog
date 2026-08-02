@@ -93,6 +93,7 @@ func New(dependencies Dependencies) *gin.Engine {
 			protectedAdmin.DELETE("/social-links/:id", dependencies.SiteContentAdmin.DeleteSocialLink)
 			protectedAdmin.GET("/featured-articles", dependencies.SiteContentAdmin.ListFeaturedArticles)
 			protectedAdmin.POST("/featured-articles", dependencies.SiteContentAdmin.CreateFeaturedArticle)
+			protectedAdmin.PUT("/featured-articles/:articleId", dependencies.SiteContentAdmin.UpdateFeaturedArticle)
 			protectedAdmin.PUT("/featured-articles/order", dependencies.SiteContentAdmin.ReorderFeaturedArticles)
 			protectedAdmin.DELETE("/featured-articles/:articleId", dependencies.SiteContentAdmin.DeleteFeaturedArticle)
 		}

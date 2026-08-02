@@ -1,9 +1,3 @@
-<script setup lang="ts">
-import { onMounted } from 'vue'
-
-onMounted(() => { document.title = '关于 | 字里行间' })
-</script>
-
 <template>
   <main class="page-container simple-page about-page">
     <header class="page-heading">

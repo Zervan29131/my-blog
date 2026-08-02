@@ -190,6 +190,9 @@ func TestResetAndPreviewHomepageDraft(t *testing.T) {
 	if preview.Code != http.StatusOK || !strings.Contains(preview.Body.String(), "Restored published title") {
 		t.Fatalf("unexpected preview response: %d %s", preview.Code, preview.Body.String())
 	}
+	if preview.Header().Get("Cache-Control") != "no-store" {
+		t.Fatal("administrator homepage preview must disable caching")
+	}
 }
 
 func TestSaveHomepageDraftRejectsInvalidConfig(t *testing.T) {

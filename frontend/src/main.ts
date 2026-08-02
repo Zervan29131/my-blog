@@ -28,6 +28,7 @@ import { setUnauthorizedHandler } from './api/http'
 import router from './router'
 import { useAuthStore } from './stores/auth'
 import 'element-plus/dist/index.css'
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import './style.css'
 import './admin.css'
 
@@ -37,7 +38,7 @@ const pinia = createPinia()
 app.use(pinia)
 setUnauthorizedHandler(() => {
   useAuthStore(pinia).logout()
-  if (router.currentRoute.value.path.startsWith('/admin') &&
+  if (router.currentRoute.value.meta.requiresAuth &&
       router.currentRoute.value.name !== 'admin-login') {
     void router.replace({
       name: 'admin-login',

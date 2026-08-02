@@ -32,6 +32,12 @@ export function createAppRouter(history: RouterHistory = createWebHistory(import
             component: () => import('../views/public/AboutView.vue'),
           },
           {
+            path: 'preview/home',
+            name: 'preview-home',
+            component: () => import('../views/public/PreviewHomeView.vue'),
+            meta: { requiresAuth: true },
+          },
+          {
             path: ':pathMatch(.*)*',
             name: 'not-found',
             component: () => import('../views/public/NotFoundView.vue'),
@@ -79,6 +85,11 @@ export function createAppRouter(history: RouterHistory = createWebHistory(import
             path: 'site/settings',
             name: 'admin-site-settings',
             component: () => import('../views/admin/SiteSettingsView.vue'),
+          },
+          {
+            path: 'homepage',
+            name: 'admin-homepage',
+            component: () => import('../views/admin/HomepageSettingsView.vue'),
           },
         ],
       },

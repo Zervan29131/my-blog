@@ -23,5 +23,10 @@ describe('ThemeToggle', () => {
 
     expect(localStorage.getItem(BLOG_THEME_KEY)).toBe('light')
     expect(wrapper.get('button').attributes('aria-label')).toContain('浅色模式')
+
+    await wrapper.get('button').trigger('click')
+    expect(localStorage.getItem(BLOG_THEME_KEY)).toBe('dark')
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(wrapper.get('button').attributes('aria-label')).toContain('深色模式')
   })
 })
